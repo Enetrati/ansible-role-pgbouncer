@@ -1,0 +1,6 @@
+---
+#- name: "Configure PG_Bouncer"
+#  block:
+#    template:
+#      src: templates/pgbouncer.ini.j2 
+#      dest: 

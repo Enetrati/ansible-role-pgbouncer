@@ -1,0 +1,365 @@
+---
+# defaults file for ansible-role-pgbouncer
+
+#
+# PgBouncer configuration file
+#
+
+# database name = connect string
+#
+# connect string params:
+#   dbname= host= port= user= password= auth_user=
+#   client_encoding= datestyle= timezone=
+#   pool_size= reserve_pool= max_db_connections=
+#   pool_mode= connect_query= application_name=
+[databases]
+
+postgresql_bouncer_databases: []
+
+# foodb over Unix socket
+;foodb =
+
+# redirect bardb to bazdb on localhost
+;bardb = host=localhost dbname=bazdb
+
+# access to dest database will go with single user
+;forcedb = host=localhost port=300 user=baz password=foo client_encoding=UNICODE datestyle=ISO connect_query='SELECT 1'
+
+# use custom pool sizes
+;nondefaultdb = pool_size=50 reserve_pool=10
+
+# use auth_user with auth_query if user not present in auth_file
+# auth_user must exist in auth_file
+; foodb = auth_user=bar
+
+# fallback connect string
+;* = host=testserver
+
+# User-specific configuration
+[users]
+
+;user1 = pool_mode=transaction max_user_connections=10
+
+# Configuration section
+[pgbouncer]
+
+#
+# Administrative settings
+#
+
+postgresql_bouncer_logfile = /var/log/pgbouncer/pgbouncer.log
+postgresql_bouncer_pidfile = /var/run/pgbouncer/pgbouncer.pid
+
+#
+# Where to wait for clients
+#
+
+# IP address or * which means all IPs
+postgresql_bouncer_listen_addr = localhost
+postgresql_bouncer_listen_port = 6432
+
+# Unix socket is also used for -R.
+# On Debian it should be /var/run/postgresql
+postgresql_bouncer_unix_socket_dir = /tmp
+postgresql_bouncer_unix_socket_mode = 0777
+postgresql_bouncer_unix_socket_group =
+
+#
+# TLS settings for accepting clients
+#
+
+# disable, allow, require, verify-ca, verify-full
+postgresql_bouncer_client_tls_sslmode = disable
+
+# Path to file that contains trusted CA certs
+postgresql_bouncer_client_tls_ca_file = <system default>
+
+# Private key and cert to present to clients.
+# Required for accepting TLS connections from clients.
+postgresql_bouncer_client_tls_key_file =
+postgresql_bouncer_client_tls_cert_file =
+
+# fast, normal, secure, legacy, <ciphersuite string>
+postgresql_bouncer_client_tls_ciphers = fast
+
+# all, secure, tlsv1.0, tlsv1.1, tlsv1.2, tlsv1.3
+postgresql_bouncer_client_tls_protocols = secure
+
+# none, auto, legacy
+postgresql_bouncer_client_tls_dheparams = auto
+
+# none, auto, <curve name>
+postgresql_bouncer_client_tls_ecdhcurve = auto
+
+#
+# TLS settings for connecting to backend databases
+#
+
+# disable, allow, require, verify-ca, verify-full
+postgresql_bouncer_server_tls_sslmode = disable
+
+# Path to that contains trusted CA certs
+postgresql_bouncer_server_tls_ca_file = <system default>
+
+# Private key and cert to present to backend.
+# Needed only if backend server require client cert.
+postgresql_bouncer_server_tls_key_file =
+postgresql_bouncer_server_tls_cert_file =
+
+# all, secure, tlsv1.0, tlsv1.1, tlsv1.2, tlsv1.3
+postgresql_bouncer_server_tls_protocols = secure
+
+# fast, normal, secure, legacy, <ciphersuite string>
+postgresql_bouncer_server_tls_ciphers = fast
+
+#
+# Authentication settings
+#
+
+# any, trust, plain, md5, cert, hba, pam
+postgresql_bouncer_auth_type = trust
+postgresql_bouncer_auth_file = /etc/pgbouncer/userlist.txt
+
+# Path to HBA-style auth config
+postgresql_bouncer_auth_hba_file =
+
+# Query to use to fetch password from database.  Result
+# must have 2 columns - username and password hash.
+postgresql_bouncer_auth_query = SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+
+#
+# Users allowed into database 'pgbouncer'
+#
+
+# comma-separated list of users who are allowed to change settings
+postgresql_bouncer_admin_users: []
+
+# comma-separated list of users who are just allowed to use SHOW command
+postgresql_bouncer_stats_users: []
+
+#
+# Pooler personality questions
+#
+
+# When server connection is released back to pool:
+#   session      - after client disconnects (default)
+#   transaction  - after transaction finishes
+#   statement    - after statement finishes
+postgresql_bouncer_pool_mode = session
+
+# Query for cleaning connection immediately after releasing from
+# client.  No need to put ROLLBACK here, pgbouncer does not reuse
+# connections where transaction is left open.
+postgresql_bouncer_server_reset_query = DISCARD ALL
+
+# Whether server_reset_query should run in all pooling modes.  If it
+# is off, server_reset_query is used only for session-pooling.
+postgresql_bouncer_server_reset_query_always = 0
+
+# Comma-separated list of parameters to ignore when given in startup
+# packet.  Newer JDBC versions require the extra_float_digits here.
+postgresql_bouncer_ignore_startup_parameters = extra_float_digits
+
+# When taking idle server into use, this query is run first.
+postgresql_bouncer_server_check_query = select 1
+
+# If server was used more recently that this many seconds ago,
+; skip the check query.  Value 0 may or may not run in immediately.
+postgresql_bouncer_server_check_delay = 30
+
+# Close servers in session pooling mode after a RECONNECT, RELOAD,
+# etc. when they are idle instead of at the end of the session.
+postgresql_bouncer_server_fast_close = 0
+
+# Use <appname - host> as application_name on server.
+postgresql_bouncer_application_name_add_host = 0
+
+# Period for updating aggregated stats.
+postgresql_bouncer_stats_period = 60
+
+#
+# Connection limits
+#
+
+# Total number of clients that can connect
+postgresql_bouncer_max_client_conn = 100
+
+# Default pool size.  20 is good number when transaction pooling
+# is in use, in session pooling it needs to be the number of
+# max clients you want to handle at any moment
+postgresql_bouncer_default_pool_size = 20
+
+# Minimum number of server connections to keep in pool.
+postgresql_bouncer_min_pool_size = 0
+
+; how many additional connection to allow in case of trouble
+postgresql_bouncer_reserve_pool_size = 0
+
+# If a clients needs to wait more than this many seconds, use reserve
+# pool.
+postgresql_bouncer_reserve_pool_timeout = 5
+
+# Maximum number of server connections for a database
+postgresql_bouncer_max_db_connections = 0
+
+# Maximum number of server connections for a user
+postgresql_bouncer_max_user_connections = 0
+
+# If off, then server connections are reused in LIFO manner
+postgresql_bouncer_server_round_robin = 0
+
+#
+# Logging
+#
+
+# Syslog settings
+postgresql_bouncer_syslog = 0
+postgresql_bouncer_syslog_facility = daemon
+postgresql_bouncer_syslog_ident = pgbouncer
+
+# log if client connects or server connection is made
+postgresql_bouncer_log_connections = 1
+
+# log if and why connection was closed
+postgresql_bouncer_log_disconnections = 1
+
+# log error messages pooler sends to clients
+postgresql_bouncer_log_pooler_errors = 1
+
+# write aggregated stats into log
+postgresql_bouncer_log_stats = 1
+
+# Logging verbosity.  Same as -v switch on command line.
+postgresql_bouncer_verbose = 0
+
+#
+# Timeouts
+#
+
+# Close server connection if its been connected longer.
+postgresql_bouncer_server_lifetime = 3600
+
+# Close server connection if its not been used in this time.  Allows
+# to clean unnecessary connections from pool after peak.
+postgresql_bouncer_server_idle_timeout = 600
+
+# Cancel connection attempt if server does not answer takes longer.
+postgresql_bouncer_server_connect_timeout = 15
+
+# If server login failed (server_connect_timeout or auth failure)
+# then wait this many second.
+postgresql_bouncer_server_login_retry = 15
+
+# Dangerous.  Server connection is closed if query does not return in
+# this time.  Should be used to survive network problems, _not_ as
+# statement_timeout. (default: 0)
+;query_timeout = 0
+
+# Dangerous.  Client connection is closed if the query is not
+# assigned to a server in this time.  Should be used to limit the
+# number of queued queries in case of a database or network
+# failure. (default: 120)
+postgresql_bouncer_query_wait_timeout = 120
+
+# Dangerous.  Client connection is closed if no activity in this
+# time.  Should be used to survive network problems. (default: 0)
+postgresql_bouncer_client_idle_timeout = 0
+
+# Disconnect clients who have not managed to log in after connecting
+# in this many seconds.
+postgresql_bouncer_client_login_timeout = 60
+
+# Clean automatically created database entries (via "*") if they stay
+# unused in this many seconds.
+postgresql_bouncer_ autodb_idle_timeout = 3600
+
+# Close connections which are in "IDLE in transaction" state longer
+# than this many seconds.
+postgresql_bouncer_idle_transaction_timeout = 0
+
+# How long SUSPEND/-R waits for buffer flush before closing
+# connection.
+postgresql_bouncer_suspend_timeout = 10
+
+#
+# Low-level tuning options
+#
+
+# buffer for streaming packets
+postgresql_bouncer_pkt_buf = 4096
+
+# man 2 listen
+postgresql_bouncer_listen_backlog = 128
+
+# Max number pkt_buf to process in one event loop.
+postgresql_bouncer_sbuf_loopcnt = 5
+
+# Maximum PostgreSQL protocol packet size.
+postgresql_bouncer_max_packet_size = 2147483647
+
+# Set SO_REUSEPORT socket option
+postgresql_bouncer_so_reuseport = 0
+
+# networking options, for info: man 7 tcp
+
+# Linux: Notify program about new connection only if there is also
+# data received.  (Seconds to wait.)  On Linux the default is 45, on
+# other OS'es 0.
+postgresql_bouncer_tcp_defer_accept = 0
+
+# In-kernel buffer size (Linux default: 4096)
+postgresql_bouncer_tcp_socket_buffer = 0
+
+# whether tcp keepalive should be turned on (0/1)
+postgresql_bouncer_tcp_keepalive = 1
+
+# The following options are Linux-specific.  They also require
+# tcp_keepalive=1.
+
+# Count of keepalive packets
+postgresql_bouncer_tcp_keepcnt = 0
+
+# How long the connection can be idle before sending keepalive
+# packets
+postgresql_bouncer_tcp_keepidle = 0
+
+# The time between individual keepalive probes
+postgresql_bouncer_tcp_keepintvl = 0
+
+# How long may transmitted data remain unacknowledged before TCP
+# connection is closed (in milliseconds)
+postgresql_bouncer_tcp_user_timeout = 0
+
+# DNS lookup caching time
+postgresql_bouncer_dns_max_ttl = 15
+
+# DNS zone SOA lookup period
+postgresql_bouncer_dns_zone_check_period = 0
+
+# DNS negative result caching time
+postgresql_bouncer_dns_nxdomain_ttl = 15
+
+# Custom resolv.conf file, to set custom DNS servers or other options
+# (default: empty = use OS settings)
+postgresql_bouncer_resolv_conf = /etc/pgbouncer/resolv.conf
+
+#
+# Random stuff
+#
+
+# Hackish security feature.  Helps against SQL injection: when PQexec
+# is disabled, multi-statement cannot be made.
+postgresql_bouncer_disable_pqexec = 0
+
+# Config file to use for next RELOAD/SIGHUP
+# By default contains config file from command line.
+postgresql_bouncer_conffile
+
+# Windows service name to register as.  job_name is alias for
+# service_name, used by some Skytools scripts.
+postgresql_bouncer_service_name = pgbouncer
+postgresql_bouncer_job_name = pgbouncer
+
+# Read additional config from other file
+;%include /etc/pgbouncer/pgbouncer-other.ini
+

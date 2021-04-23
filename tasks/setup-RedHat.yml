@@ -1,0 +1,14 @@
+---
+
+- name: "Check if  PG_Bouncer is installed"
+  shell: rpm -qa | grep pgbouncer
+  register: rpm_result
+  ignore_errors: True
+
+- name: "Install PG_Bouncer"
+  block:
+    - name: "Install package"
+      package:
+        name: 'pgbouncer'
+        state: present
+  when: rpm_result.rc == '1'
